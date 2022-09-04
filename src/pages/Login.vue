@@ -21,9 +21,10 @@
 </template>
 
 <script>
-import { ref } from 'vue';
-import { auth } from '../firebase';
+import { ref, onMounted } from 'vue';
+import { auth, USER_COLLECTION } from '../firebase';
 import { useRouter } from 'vue-router';
+import store from '../store';
 
 export default {
     setup() {
@@ -33,10 +34,17 @@ export default {
         const router = useRouter();
 
         const onLogin = async () => {
+            if (!email.value || !password.value) {
+                alert(' 이메일, 비밀번호를 모두 입력해주세요.');
+            }
             try {
                 loading.value = true;
                 const { user } = await auth.signInWithEmailAndPassword(email.value, password.value);
-                console.log(user.uid);
+
+                // GET USER INFO
+                const doc = await USER_COLLECTION.doc(user.uid).get();
+                store.commit('SET_USER', doc.data());
+
                 // 뒤로가기 눌렀을 때, 로그인 페이지로 가는 것을 방지
                 router.replace('/');
             } catch (error) {
