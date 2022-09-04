@@ -1,5 +1,5 @@
 <template>
-  <h1 class="name">북마크 페이지는 아직 준비 중입니다.</h1>
+    <h1 class="name">북마크 페이지는 아직 준비 중입니다.</h1>
 </template>
 
 <script>

@@ -1,33 +1,63 @@
 <template>
-  <div class="flex flex-col items-center space-y-4 mt-10">
-    <i :class="`fab fa-twitter text-4xl text-primary ${loading ? 'animate-bounce' : ''}`"></i>
-    <span class="text-2xl nickname">회원가입</span>
-    <input v-model="username" type="text" class="rounded w-96 px-4 py-3 border border-gray-300 focus:ring-2 focus:border-primary focus:outline-none" placeholder="닉네임" />
-    <input v-model="email" type="text" class="rounded w-96 px-4 py-3 border border-gray-300 focus:ring-2 focus:border-primary focus:outline-none" placeholder="이메일" />
-    <input v-model="password" type="text" class="rounded w-96 px-4 py-3 border border-gray-300 focus:ring-2 focus:border-primary focus:outline-none" placeholder="비밀번호" />
-    <button @click="onRegister" class="content w-96 rounded bg-primary text-white py-4 hover:bg-dark">회원가입</button>
-    <RouterLink to="/login">
-      <button class="content text-primary">계정이 이미 있으신가요? 로그인 하기</button>
-    </RouterLink>
-  </div>
+    <div class="flex flex-col items-center space-y-4 mt-10">
+        <i :class="`fab fa-twitter text-4xl text-primary ${loading ? 'animate-bounce' : ''}`"></i>
+        <span class="text-2xl nickname">회원가입</span>
+        <input v-model="username" type="text" class="rounded w-96 px-4 py-3 border border-gray-300 focus:ring-2 focus:border-primary focus:outline-none" placeholder="닉네임" />
+        <input v-model="email" type="text" class="rounded w-96 px-4 py-3 border border-gray-300 focus:ring-2 focus:border-primary focus:outline-none" placeholder="이메일" /><input
+            v-model="password"
+            type="password"
+            class="rounded w-96 px-4 py-3 border border-gray-300 focus:ring-2 focus:border-primary focus:outline-none"
+            placeholder="비밀번호"
+        />
+
+        <button v-if="loading" class="content w-96 rounded bg-light text-white py-3">회원가입 중입니다.</button>
+        <button v-else @click="onRegister" class="content w-96 rounded bg-primary text-white py-3 hover:bg-dark">회원가입</button>
+
+        <RouterLink to="/login">
+            <button class="content text-primary">계정이 이미 있으신가요? 로그인 하기</button>
+        </RouterLink>
+    </div>
 </template>
 
 <script>
-import { ref } from "vue";
+import { ref } from 'vue';
+import { auth, USER_COLLECTION } from '../firebase';
+import { useRouter } from 'vue-router';
 
 export default {
-  setup() {
-    const username = ref("");
-    const email = ref("");
-    const password = ref("");
-    const loading = ref(false);
+    setup() {
+        const username = ref('');
+        const email = ref('');
+        const password = ref('');
+        const loading = ref(false);
+        const router = useRouter();
 
-    const onRegister = () => {
-      console.log(username.value);
-    };
+        const onRegister = async () => {
+            try {
+                loading.value = true;
+                const { user } = await auth.createUserWithEmailAndPassword(email.value, password.value);
+                const doc = USER_COLLECTION.doc(user.uid);
+                await doc.set({
+                    uid: user.uid,
+                    email: email.value,
+                    profile_image_url: '/profile.jpeg',
+                    num_tweets: 0,
+                    followers: [],
+                    followings: [],
+                    created_at: Date.now(),
+                });
+                alert('회원 가입에 성공하셨습니다. 로그인 해주세요!');
+                router.push('/login');
+            } catch (error) {
+                // console.log('create user with email and password error!');
+                alert(error.message);
+            } finally {
+                loading.value = false;
+            }
+        };
 
-    return { username, email, password, loading, onRegister };
-  },
+        return { username, email, password, loading, onRegister };
+    },
 };
 </script>
 
