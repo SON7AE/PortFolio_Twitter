@@ -44,7 +44,6 @@ export default {
                 // GET USER INFO
                 const doc = await USER_COLLECTION.doc(user.uid).get();
                 store.commit('SET_USER', doc.data());
-
                 // 뒤로가기 눌렀을 때, 로그인 페이지로 가는 것을 방지
                 router.replace('/');
             } catch (error) {

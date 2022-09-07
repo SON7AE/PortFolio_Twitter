@@ -1,7 +1,7 @@
 <template>
     <!-- TWEETS -->
     <div class="flex px-3 py-3 border-b border-color hover:bg-gray-50 cursor-pointer">
-        <img src="http://picsum.photos/200" alt="" class="w-10 h-10 rounded-full hover:opacity-80 cursor-pointer" />
+        <img :src="currentUser.profile_image_url" alt="" class="w-10 h-10 rounded-full hover:opacity-80 cursor-pointer" />
         <div class="ml-3 flex-1 flex flex-col space-y-1">
             <div class="text-sm space-x-1 nickname">
                 <span class="font-bold">마르코</span>
@@ -34,7 +34,9 @@
 </template>
 
 <script>
-export default {};
+export default {
+    props: ['currentUser'],
+};
 </script>
 
 <style></style>

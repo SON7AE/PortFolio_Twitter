@@ -7,7 +7,13 @@
                 <i class="fab fa-twitter text-3xl text-primary xl:ml-4 mb-3"></i>
                 <!-- SIDE MEMU ICONS -->
                 <div class="flex flex-col items-start">
-                    <RouterLink :to="route.path" v-for="route in routes" :key="route" class="hover:text-primary hover:bg-blue-50 px-4 py-2 rounded-full cursor-pointer flex items-center">
+                    <RouterLink
+                        :to="route.path"
+                        v-for="route in routes"
+                        :key="route"
+                        :class="`${router.currentRoute.value.name == route.name ? 'text-primary' : ''}`"
+                        class="hover:text-primary hover:bg-blue-50 px-4 py-2 rounded-full cursor-pointer flex items-center"
+                    >
                         <div v-if="route.meta.isMenu">
                             <i :class="route.icon"></i> <span class="ml-5 mt-0.5 text-xl hidden xl:inline-block name">{{ route.title }}</span>
                         </div>
@@ -24,10 +30,10 @@
             <!-- PROFILE BUTTON -->
             <div class="xl:pr-3 mb-3 relative" @click="showProfileDropdown = true">
                 <button class="hidden xl:flex mt-3 px-2 py-1 w-full h-12 rounded-full hover:bg-blue-50 items-center">
-                    <img src="https://picsum.photos/100" alt="" class="w-10 h-10 rounded-full" />
+                    <img :src="currenUser.profile_image_url" alt="" class="w-10 h-10 rounded-full" />
                     <div class="xl:ml-2 hidden xl:flex flex-col">
-                        <span class="text-sm font-bold nickname">Marco.com</span>
-                        <span class="text-xs text-gray-500 text-left nickname">@Marco</span>
+                        <span class="text-sm font-bold nickname">{{ currenUser.email }}</span>
+                        <span class="text-xs text-gray-500 text-left nickname">@{{ currenUser.username }}</span>
                     </div>
                     <i class="ml-auto fas fa-ellipsis-h fa-fw text-xs hidden xl:block"></i>
                 </button>
@@ -43,7 +49,7 @@
         <!-- PROFILE DROPDOWN MENU -->
         <div v-if="showProfileDropdown" class="absolute bottom-20 shadow rounded-lg w-60 bg-white" @click="showProfileDropdown = false">
             <button class="hover:bg-gray-50 border-b border-gray-100 flex p-3 w-full items-center">
-                <img src="http://picsum.photos/200" alt="" class="w-10 h-10 rounded-full" />
+                <img :src="currenUser.profile_image_url" alt="" class="w-10 h-10 rounded-full" />
                 <div class="ml-2">
                     <div class="nickname text-sm">Marco@nate.com</div>
                     <div class="content text-left text-gray-500 text-sm">@Marco</div>
@@ -56,7 +62,7 @@
 </template>
 
 <script>
-import { ref, onBeforeMount } from 'vue';
+import { ref, onBeforeMount, computed } from 'vue';
 import router from '../router';
 import { auth } from '../firebase';
 import store from '../store';
@@ -65,6 +71,8 @@ export default {
     setup() {
         const routes = ref([]);
         const showProfileDropdown = ref(false);
+        const currenUser = computed(() => store.state.user);
+
         const onLogout = async () => {
             await auth.signOut();
             store.commit('SET_USER', null);
@@ -75,7 +83,7 @@ export default {
             routes.value = router.options.routes;
         });
 
-        return { routes, showProfileDropdown, onLogout };
+        return { routes, showProfileDropdown, currenUser, onLogout, router };
     },
 };
 </script>
